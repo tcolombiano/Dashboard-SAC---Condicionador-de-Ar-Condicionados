@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Dashboard SAC · Condicionadores de Ar · Bahia</title>
+<style>
+  :root{
+    --azul:#0033A0;
+    --azul-escuro:#001F5B;
+    --azul-medio:#1B4FD6;
+    --vermelho:#CE1126;
+    --vermelho-claro:#E63946;
+    --branco:#FFFFFF;
+    --gelo:#F2F5FB;
+    --texto:#0F1B33;
+    --muted:#5B6B8C;
+    --borda:#DCE3F2;
+    --sombra:0 8px 24px rgba(0,32,90,.08);
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    font-family:"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--gelo);
+    color:var(--texto);
+    -webkit-font-smoothing:antialiased;
+  }
+
+  /* ================= HEADER ================= */
+  header{
+    position:relative;
+    background:linear-gradient(120deg,#001F5B 0%,#0033A0 55%,#1B4FD6 100%);
+    color:#fff;
+    padding:30px 32px 40px;
+    overflow:hidden;
+  }
+  header::before{
+    content:"";
+    position:absolute;
+    right:-60px;top:-80px;
+    width:320px;height:320px;
+    border-radius:50%;
+    background:radial-gradient(circle,rgba(255,255,255,.14),transparent 70%);
+  }
+  header::after{
+    content:"";
+    position:absolute;left:0;right:0;bottom:0;height:9px;
+    background:repeating-linear-gradient(90deg,var(--vermelho) 0 56px,#fff 56px 112px);
+  }
+  .header-inner{
+    position:relative;z-index:2;
+    display:flex;align-items:center;gap:20px;flex-wrap:wrap;
+    max-width:1400px;margin:0 auto;
+  }
+  .selo{
+    width:62px;height:62px;flex:0 0 62px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:1.9rem;color:#fff;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.35);
+    border-radius:16px;
+  }
+  header h1{margin:0;font-size:1.55rem;letter-spacing:.2px;}
+  header p{margin:6px 0 0;font-size:.9rem;color:#C9D8FF;}
+  .header-badge{
+    margin-left:auto;
+    background:rgba(255,255,255,.12);
+    border:1px solid rgba(255,255,255,.3);
+    padding:10px 18px;border-radius:999px;
+    font-size:.82rem;color:#E6EDFF;white-space:nowrap;
+  }
+
+  /* ================= LAYOUT ================= */
+  main{max-width:1400px;margin:0 auto;padding:26px 24px 60px;}
+  .bloco{margin-bottom:32px;}
+  .titulo-secao{
+    display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    font-size:1.05rem;text-transform:uppercase;letter-spacing:.9px;
+    color:var(--azul-escuro);
+    margin:0 0 16px;padding-left:14px;
+    border-left:5px solid var(--vermelho);
+  }
+  .dica{
+    font-size:.72rem;text-transform:none;letter-spacing:0;
+    color:var(--muted);font-weight:400;
+  }
+
+  /* ================= KPI CARDS ================= */
+  .kpis{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(215px,1fr));
+    gap:16px;
+  }
+  .card{
+    position:relative;
+    background:#fff;
+    border:1px solid var(--borda);
+    border-radius:16px;
+    padding:18px 20px 18px 24px;
+    box-shadow:var(--sombra);
+    cursor:pointer;
+    transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    overflow:hidden;
+    outline:none;
+  }
+  .card::before{
+    content:"";position:absolute;left:0;top:0;bottom:0;width:5px;
+    background:var(--azul);
+    transition:background .18s ease;
+  }
+  .card:hover,.card:focus-visible{
+    transform:translateY(-3px);
+    box-shadow:0 14px 30px rgba(0,32,90,.16);
+  }
+  .card.ativo{
+    border-color:var(--vermelho);
+    background:linear-gradient(180deg,#FFF7F8,#fff);
+  }
+  .card.ativo::before{background:var(--vermelho);}
+  .kpi-label{
+    font-size:.72rem;letter-spacing:.9px;text-transform:uppercase;
+    color:var(--muted);font-weight:700;
+  }
+  .kpi-valor{
+    font-size:1.62rem;font-weight:800;color:var(--azul-escuro);
+    margin:8px 0 4px;line-height:1.15;
+    font-variant-numeric:tabular-nums;
+  }
+  .card.ativo .kpi-valor{color:var(--vermelho);}
+  .kpi-sub{font-size:.78rem;color:var(--muted);}
+  .kpi-hint{
+    position:absolute;top:12px;right:14px;
+    font-size:.7rem;color:#B9C6E2;
+  }
+
+  /* ================= POSTOS ================= */
+  .grid-postos{
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+    gap:16px;
+  }
+  .posto h3{
+    margin:0 0 10px;font-size:1rem;color:var(--azul-escuro);
+    display:flex;align-items:center;gap:8px;
+  }
+  .posto h3 .dot{
+    width:9px;height:9px;border-radius:50%;background:var(--vermelho);
+    flex:0 0 9px;
+  }
+  .posto .grande{
+    font-size:1.45rem;font-weight:800;color:var(--azul);
+    margin:2px 0 12px;font-variant-numeric:tabular-nums;
+  }
+  .posto .grande small{font-size:.75rem;color:var(--muted);font-weight:600;}
+  .linha{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;
+    font-size:.84rem;padding:5px 0;
+    border-top:1px dashed #E6ECF8;
+  }
+  .linha span{color:var(--muted);}
+  .linha b{color:var(--texto);font-variant-numeric:tabular-nums;}
+  .barra{
+    margin-top:12px;height:8px;border-radius:999px;background:#EDF1FA;overflow:hidden;
+  }
+  .barra i{
+    display:block;height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--azul),#2C64E8);
+    transition:width .6s ease;
+  }
+  .card.ativo .barra i{background:linear-gradient(90deg,var(--vermelho),#F2697A);}
+  .ver-detalhe{
+    margin-top:12px;font-size:.75rem;font-weight:700;color:var(--azul);
+    letter-spacing:.4px;text-transform:uppercase;
+  }
+  .card.ativo .ver-detalhe{color:var(--vermelho);}
+
+  /* ================= DETALHE ================= */
+  .painel{
+    background:#fff;border:1px solid var(--borda);border-radius:18px;
+    box-shadow:var(--sombra);padding:24px;
+  }
+  .detalhe-head{
+    display:flex;align-items:flex-start;gap:18px;flex-wrap:wrap;
+    padding-bottom:18px;margin-bottom:18px;border-bottom:2px solid #EEF2FA;
+  }
+  .tag{
+    display:inline-block;font-size:.68rem;font-weight:800;letter-spacing:1px;
+    text-transform:uppercase;color:var(--vermelho);
+    background:#FDECEE;padding:4px 10px;border-radius:999px;margin-bottom:8px;
+  }
+  .detalhe-head h2{margin:0;font-size:1.35rem;color:var(--azul-escuro);}
+  .detalhe-head p{margin:6px 0 0;font-size:.85rem;color:var(--muted);}
+  .btn-fechar{
+    margin-left:auto;
+    background:#fff;color:var(--vermelho);
+    border:1.5px solid var(--vermelho);
+    padding:9px 18px;border-radius:999px;
+    font-size:.8rem;font-weight:700;cursor:pointer;
+    transition:.18s;
+  }
+  .btn-fechar:hover{background:var(--vermelho);color:#fff;}
+
+  .detalhe-kpis{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+    gap:14px;margin-bottom:24px;
+  }
+  .mini{
+    background:var(--gelo);border:1px solid var(--borda);
+    border-radius:14px;padding:14px 16px;
+  }
+  .mini .kpi-label{font-size:.66rem;}
+  .mini .kpi-valor{font-size:1.2rem;margin:6px 0 0;}
+  .mini.destaque{background:#F1F5FF;border-color:#C9D8FF;}
+
+  .detalhe-grid{
+    display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));
+    gap:20px;margin-bottom:24px;
+  }
+  .painel-mini{
+    border:1px solid var(--borda);border-radius:14px;padding:18px;
+  }
+  .painel-mini h4{
+    margin:0 0 14px;font-size:.82rem;text-transform:uppercase;
+    letter-spacing:.8px;color:var(--azul-escuro);
+  }
+  .chart{display:flex;flex-direction:column;gap:10px;}
+  .chart-row{
+    display:grid;grid-template-columns:118px 1fr auto;
+    gap:10px;align-items:center;font-size:.82rem;
+  }
+  .chart-label{
+    color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .chart-track{background:#EDF1FA;border-radius:999px;height:14px;overflow:hidden;}
+  .chart-fill{
+    height:100%;border-radius:999px;
+    background:linear-gradient(90deg,var(--azul),#2C64E8);
+    transition:width .6s ease;
+  }
+  .chart-value{
+    font-weight:700;color:var(--azul-escuro);
+    font-variant-numeric:tabular-nums;white-space:nowrap;
+  }
+
+  /* ================= TABELA ================= */
+  .tabela-wrap{max-height:460px;overflow:auto;border-radius:12px;border:1px solid var(--borda);}
+  table{width:100%;border-collapse:collapse;font-size:.82rem;}
+  thead th{
+    position:sticky;top:0;z-index:2;
+    background:var(--azul-escuro);color:#fff;
+    text-align:left;padding:11px 12px;
+    font-size:.72rem;letter-spacing:.6px;text-transform:uppercase;
+  }
+  tbody td{padding:9px 12px;border-bottom:1px solid #EDF1FA;}
+  tbody tr:nth-child(even){background:#FAFBFE;}
+  tbody tr:hover{background:#F1F5FF;}
+  td.num,th.num{text-align:right;font-variant-numeric:tabular-nums;}
+
+  .aviso{
+    text-align:center;color:var(--muted);font-size:.9rem;
+    padding:34px 18px;border:2px dashed var(--borda);border-radius:16px;
+    background:#fff;
+  }
+
+  footer{
+    text-align:center;font-size:.75rem;color:var(--muted);
+    padding:20px 24px 40px;
+  }
+  footer b{color:var(--azul);}
+
+  @media (max-width:640px){
+    header{padding:22px 18px 34px;}
+    header h1{font-size:1.2rem;}
+    .header-badge{margin-left:0;}
+    main{padding:18px 14px 40px;}
+    .chart-row{grid-template-columns:88px 1fr auto;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="selo">★</div>
+    <div>
+      <h1>Gestão de Condicionadores de Ar</h1>
+      <p>Painel de KPIs por Posto SAC · Base SPLITS · Estado da Bahia</p>
+    </div>
+    <div class="header-badge" id="dataAtual"></div>
+  </div>
+</header>
+
+<main>
+  <section class="bloco">
+    <h2 class="titulo-secao">
+      Indicadores Gerais
+      <span class="dica">clique em um KPI para reordenar o ranking dos postos</span>
+    </h2>
+    <div class="kpis" id="kpisGlobais"></div>
+  </section>
+
+  <section class="bloco">
+    <h2 class="titulo-secao" id="tituloPostos">Postos SAC</h2>
+    <div class="grid-postos" id="gridPostos"></div>
+  </section>
+
+  <section class="bloco" id="detalhe"></section>
+</main>
+
+<footer>
+  Fonte: <b>BASE_SPLITS_SAC.xlsx</b> · Idades calculadas em anos completos até a data atual ·
+  Valores em Reais (R$)
+</footer>
+
+<script>
+/* ============================================================
+   1. BASE DE DADOS
+   Formato: [posto, valorAquisicao, valorResidual, dataAquisicao, marca, btus]
+   ============================================================ */
+const POSTOS = {
+  BAR:{nome:"SAC Barreiras"},
+  VDC:{nome:"SAC Vitória da Conquista 1"},
+  TDF:{nome:"SAC Teixeira de Freitas"},
+  ILH:{nome:"SAC Ilhéus"},
+  JAC:{nome:"SAC Jacobina"},
+  IRE:{nome:"SAC Irecê"},
+  PAF:{nome:"SAC Paulo Afonso"},
+  ITA:{nome:"SAC Itabuna"},
+  GUA:{nome:"SAC Guanambi"}
+};
+
+const D = [
+  /* ---------- SAC BARREIRAS (22) ---------- */
+  ["BAR",2316.66,0,"2008-12-29","Hitachi",30],
+  ["BAR",1827,0,"2010-03-16","Rheem",18],
+  ["BAR",1317,0,"2013-12-26","Electrolux",12],
+  ["BAR",1045.99,0,"2013-04-12","Consul",9],
+  ["BAR",1045.99,0,"2013-04-12","Consul",9],
+  ["BAR",1750,0,"2013-04-12","Komeco",18],
+  ["BAR",1750,0,"2013-04-12","Komeco",18],
+  ["BAR",4392.31,1390.99,"2019-12-11","Elgin",36],
+  ["BAR",1565.43,769.65,"2021-09-28","Agratto",12],
+  ["BAR",1565.43,769.65,"2021-09-28","Agratto",12],
+  ["BAR",2860,1430.10,"2021-10-14","Elgin",24],
+  ["BAR",3490,2733.92,"2024-08-29","Midea",24],
+  ["BAR",2043.13,1668.47,"2024-12-18","Elgin",9],
+  ["BAR",3800,3261.61,"2025-05-26","Agratto",24],
+  ["BAR",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["BAR",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["BAR",3299.99,2887.49,"2025-07-22","Elgin",18],
+  ["BAR",2200,2016.70,"2025-12-01","Consul",12],
+  ["BAR",1500,912.50,"2022-11-10","Agratto",12],
+  ["BAR",6680,4731.55,"2023-11-14","Elgin",36],
+  ["BAR",6680,4731.55,"2023-11-14","Elgin",36],
+  ["BAR",3970,0,"2015-11-11","Carrier",36],
+
+  /* ---------- SAC VITÓRIA DA CONQUISTA 1 (24) ---------- */
+  ["VDC",1012.5,0,"2010-06-01","Electrolux",9],
+  ["VDC",1012.5,0,"2010-06-01","Electrolux",9],
+  ["VDC",1012.5,0,"2010-06-01","Electrolux",9],
+  ["VDC",1012.5,0,"2010-06-01","Electrolux",9],
+  ["VDC",1012.5,0,"2010-06-01","Electrolux",9],
+  ["VDC",2365,0,"2010-01-07","Hitachi",18],
+  ["VDC",4268,2133.90,"2021-10-08","Agratto",30],
+  ["VDC",4268,2133.90,"2021-10-08","Agratto",30],
+  ["VDC",4268,2133.90,"2021-10-08","Agratto",30],
+  ["VDC",3490,2733.92,"2024-08-29","Agratto",18],
+  ["VDC",5556.99,1759.59,"2019-12-18","Springer",60],
+  ["VDC",5556.99,1759.59,"2019-12-26","Springer",60],
+  ["VDC",2094.5,0,"2010-06-15","Carrier",18],
+  ["VDC",2094.5,0,"2010-12-10","Carrier",18],
+  ["VDC",2289,1449.70,"2023-02-28","Agratto",18],
+  ["VDC",5463.63,728.51,"2018-02-23","Elgin",60],
+  ["VDC",5463.63,728.51,"2018-03-23","Elgin",60],
+  ["VDC",5556.99,1574.37,"2019-08-29","Elgin",60],
+  ["VDC",2043.13,1668.47,"2024-12-18","Elgin",9],
+  ["VDC",3800,3261.61,"2025-05-26","Agratto",24],
+  ["VDC",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["VDC",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["VDC",2200,2016.70,"2025-12-01","Consul",12],
+  ["VDC",2200,2016.70,"2025-12-01","Consul",12],
+
+  /* ---------- SAC TEIXEIRA DE FREITAS (24) ---------- */
+  ["TDF",2417.57,1208.70,"2021-10-15","Agratto",18],
+  ["TDF",3490,2733.92,"2024-08-30","Midea",22],
+  ["TDF",3490,2733.92,"2024-08-29","Midea",22],
+  ["TDF",1642.13,848.47,"2021-12-15","Agratto",12],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",60],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["TDF",2289,1449.70,"2023-02-28","Agratto",18],
+  ["TDF",6680,4731.55,"2023-11-14","Elgin",36],
+  ["TDF",6680,4731.55,"2023-11-14","Elgin",36],
+  ["TDF",6680,4731.55,"2023-11-16","Elgin",36],
+  ["TDF",6680,4731.55,"2023-11-16","Elgin",12],
+  ["TDF",1850,1402.82,"2024-05-27","Elgin",12],
+  ["TDF",1850,1402.82,"2024-05-27","Elgin",36],
+  ["TDF",8263.56,6748.64,"2024-12-06","Elgin",36],
+  ["TDF",8263.56,6748.64,"2024-12-06","Elgin",12],
+  ["TDF",1330,554.25,"2024-02-26","Agratto",12],
+
+  /* ---------- SAC ILHÉUS (20) ---------- */
+  ["ILH",1330,509.91,"2020-08-24","Agratto",12],
+  ["ILH",1565.43,769.65,"2021-09-28","Agratto",12],
+  ["ILH",2860,1430.10,"2021-10-14","Elgin",24],
+  ["ILH",2860,1430.10,"2021-10-14","Elgin",24],
+  ["ILH",3490,2733.92,"2024-08-29","Midea",22],
+  ["ILH",1040,103.98,"2017-10-31","Agratto",12],
+  ["ILH",4096.66,512.02,"2018-01-16","Elgin",36],
+  ["ILH",4096.66,512.02,"2018-01-16","Elgin",36],
+  ["ILH",2094.5,0,"2009-12-17","Gree",24],
+  ["ILH",1640,0,"2013-10-15","Consul",18],
+  ["ILH",1640,0,"2013-10-15","Consul",18],
+  ["ILH",8263.56,6748.64,"2024-12-06","Elgin",36],
+  ["ILH",3299.99,2887.49,"2025-07-22","Elgin",18],
+  ["ILH",3299.99,2887.49,"2025-07-22","Elgin",18],
+  ["ILH",2200,2016.70,"2025-12-01","Consul",12],
+  ["ILH",2200,2016.70,"2025-12-01","Consul",12],
+  ["ILH",1500,912.50,"2022-11-10","Agratto",12],
+  ["ILH",6680,4731.55,"2023-11-16","Elgin",36],
+  ["ILH",1850,1402.82,"2024-05-27","Elgin",12],
+  ["ILH",1850,1402.82,"2024-05-27","Elgin",12],
+
+  /* ---------- SAC JACOBINA (25) ---------- */
+  ["JAC",1400,0,"2004-12-27","LG",18],
+  ["JAC",1400,0,"2004-12-27","LG",18],
+  ["JAC",1400,0,"2004-12-27","LG",18],
+  ["JAC",799.95,0,"2012-06-12","LG",12],
+  ["JAC",1118.12,0,"2014-03-17","Elgin",12],
+  ["JAC",1118.12,0,"2014-03-17","Elgin",12],
+  ["JAC",1118.12,0,"2014-03-17","Elgin",12],
+  ["JAC",1623.85,0,"2015-10-27","Komeco",18],
+  ["JAC",1623.85,0,"2015-10-27","Komeco",18],
+  ["JAC",1565.43,769.65,"2021-09-28","Agratto",12],
+  ["JAC",2417.57,1208.70,"2021-10-15","Agratto",18],
+  ["JAC",3490,2733.92,"2024-08-29","Midea",22],
+  ["JAC",3490,2733.92,"2024-08-29","Midea",22],
+  ["JAC",4120,0,"2010-07-07","Carrier",60],
+  ["JAC",1040,103.98,"2017-10-31","Agratto",12],
+  ["JAC",1040,103.98,"2017-10-31","Agratto",12],
+  ["JAC",1040,103.98,"2017-10-31","Agratto",12],
+  ["JAC",4149,0,"2010-04-23","Carrier",60],
+  ["JAC",3970,0,"2015-11-11","Carrier",36],
+  ["JAC",2043.13,1668.47,"2024-12-18","Elgin",9],
+  ["JAC",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["JAC",3299.99,2887.49,"2025-07-22","Elgin",18],
+  ["JAC",2289,1449.70,"2023-02-28","Agratto",18],
+  ["JAC",2289,1449.70,"2023-02-28","Agratto",18],
+  ["JAC",1850,1402.82,"2024-05-27","Elgin",12],
+
+  /* ---------- SAC IRECÊ (19) ---------- */
+  ["IRE",1662,0,"2009-02-06","Carrier",47],
+  ["IRE",3490,2733.92,"2024-08-29","Agratto",24],
+  ["IRE",3490,2733.92,"2024-08-29","Midea",22],
+  ["IRE",4268,2133.90,"2021-10-08","Agratto",30],
+  ["IRE",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["IRE",6680,4731.55,"2023-11-14","Elgin",36],
+  ["IRE",10151.73,8882.73,"2025-07-09","Elgin",30],
+  ["IRE",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["IRE",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["IRE",2889.4,0,"2010-04-01","Electrolux",36],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",2094.5,0,"2010-06-30","Springer",18],
+  ["IRE",4240,0,"2010-06-30","Carrier",48],
+  ["IRE",5463.63,728.51,"2018-03-23","Elgin",60],
+
+  /* ---------- SAC PAULO AFONSO (18) ---------- */
+  ["PAF",1485.75,0,"2014-04-30","LG",12],
+  ["PAF",1485.75,0,"2014-04-30","LG",12],
+  ["PAF",1042.75,0,"2014-04-30","LG",18],
+  ["PAF",1815,0,"2013-12-27","Gree",18],
+  ["PAF",4666.61,0,"2013-12-27","Rheem",60],
+  ["PAF",4666.61,0,"2013-12-27","Rheem",60],
+  ["PAF",3490,2733.92,"2024-08-29","Agratto",24],
+  ["PAF",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["PAF",6680,4731.55,"2023-11-14","Elgin",36],
+  ["PAF",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["PAF",5463.63,728.51,"2018-02-23","Elgin",60],
+  ["PAF",4569.75,0,"2013-10-15","Komeco",60],
+  ["PAF",4569.75,0,"2013-10-15","Komeco",60],
+  ["PAF",4569.75,0,"2013-10-15","Komeco",60],
+  ["PAF",4569.75,0,"2013-10-15","Komeco",60],
+  ["PAF",4569.75,0,"2013-10-15","Komeco",60],
+  ["PAF",3174.99,0,"2013-11-14","Elgin",30],
+  ["PAF",3174.99,0,"2013-11-14","Elgin",30],
+
+  /* ---------- SAC ITABUNA (22) ---------- */
+  ["ITA",3261.84,951.47,"2019-09-05","Agratto",30],
+  ["ITA",3261.84,951.47,"2019-09-05","Agratto",30],
+  ["ITA",1565.43,769.65,"2021-09-27","Agratto",12],
+  ["ITA",1565.43,769.65,"2021-09-27","Agratto",12],
+  ["ITA",2417.57,1208.70,"2021-10-06","Agratto",18],
+  ["ITA",3490,2733.92,"2024-08-29","Midea",22],
+  ["ITA",5858.83,3027.15,"2021-12-21","Elgin",36],
+  ["ITA",1040,103.98,"2017-10-31","Agratto",12],
+  ["ITA",1040,103.98,"2017-10-31","Agratto",12],
+  ["ITA",8263.56,6748.64,"2024-12-05","Elgin",36],
+  ["ITA",8263.56,6748.64,"2024-12-05","Elgin",36],
+  ["ITA",10151.73,8882.73,"2025-07-10","Elgin",30],
+  ["ITA",909,0,"2014-06-27","LG",9],
+  ["ITA",909,0,"2014-06-27","LG",9],
+  ["ITA",3778,0,"2014-06-27","Electrolux",36],
+  ["ITA",4999,0,"2014-09-02","Komeco",60],
+  ["ITA",4999,0,"2014-09-02","Komeco",60],
+  ["ITA",4999,0,"2014-09-02","Komeco",60],
+  ["ITA",4999,0,"2014-09-02","Komeco",60],
+  ["ITA",4999,0,"2014-10-10","Komeco",60],
+  ["ITA",4999,0,"2014-10-10","Komeco",60],
+  ["ITA",4999,0,"2014-10-10","Komeco",60],
+
+  /* ---------- SAC GUANAMBI (20) ---------- */
+  ["GUA",1623.85,0,"2015-10-26","Komeco",18],
+  ["GUA",1623.85,0,"2015-10-26","Komeco",18],
+  ["GUA",1623.85,0,"2015-10-26","Komeco",18],
+  ["GUA",1168.12,0,"2015-10-29","Elgin",12],
+  ["GUA",1168.12,0,"2015-10-29","Elgin",12],
+  ["GUA",1168.12,0,"2015-10-29","Elgin",12],
+  ["GUA",1168.12,0,"2015-10-29","Elgin",12],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",4665,0,"2015-11-11","Carrier",48],
+  ["GUA",10151.73,8882.73,"2025-07-10","Elgin",30]
+];
+
+/* ============================================================
+   2. UTILITÁRIOS
+   ============================================================ */
+const HOJE = new Date();
+
+const fmtBRL = v => v.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});
+const fmtNum = v => v.toLocaleString('pt-BR');
+const fmtAnos = v => v.toLocaleString('pt-BR',{minimumFractionDigits:1,maximumFractionDigits:1}) + " anos";
+const fmtData = iso => {
+  const [a,m,d] = iso.split('-');
+  return `${d}/${m}/${a}`;
+};
+
+function idadeAnos(iso){
+  const d = new Date(iso + "T00:00:00");
+  let a = HOJE.getFullYear() - d.getFullYear();
+  const m = HOJE.getMonth() - d.getMonth();
+  if (m < 0 || (m === 0 && HOJE.getDate() < d.getDate())) a--;
+  return Math.max(0, a);
+}
+
+function agrega(regs){
+  const n = regs.length;
+  const somaAq  = regs.reduce((s,r)=>s+r[1],0);
+  const somaRes = regs.reduce((s,r)=>s+r[2],0);
+  const idades  = regs.map(r=>idadeAnos(r[3]));
+  const idadeMedia = n ? idades.reduce((a,b)=>a+b,0)/n : 0;
+  return {
+    n, somaAq, somaRes, idadeMedia,
+    pctRes: somaAq ? (somaRes/somaAq)*100 : 0,
+    idadeMax: idades.length ? Math.max(...idades) : 0,
+    idadeMin: idades.length ? Math.min(...idades) : 0
+  };
+}
+
+function agrupa(regs, fn){
+  const map = new Map();
+  regs.forEach(r=>{
+    const k = fn(r);
+    if(!map.has(k)) map.set(k,{label:k, n:0, aq:0, res:0});
+    const o = map.get(k);
+    o.n++; o.aq += r[1]; o.res += r[2];
+  });
+  return [...map.values()];
+}
+
+/* ============================================================
+   3. ESTADO
+   ============================================================ */
+const state = { sort:'aquisicao', posto:null };
+
+const SORT_INFO = {
+  qtd:       { campo:'n',          titulo:'Ranking por quantidade de equipamentos' },
+  idade:     { campo:'idadeMedia', titulo:'Ranking por idade média (mais antigos primeiro)' },
+  aquisicao: { campo:'somaAq',     titulo:'Ranking por soma do valor de aquisição' },
+  residual:  { campo:'somaRes',    titulo:'Ranking por soma do valor residual' }
+};
+
+/* ============================================================
+   4. RENDERIZAÇÃO
+   ============================================================ */
+function render(){ renderKpis(); renderPostos(); renderDetalhe(); }
+
+/* -------- 4.1 KPIs globais -------- */
+function renderKpis(){
+  const g = agrega(D);
+  const kpis = [
+    { key:'qtd',       icone:'❄', label:'Equipamentos',           valor:fmtNum(g.n),            sub:'Total de condicionadores cadastrados' },
+    { key:'qtd',       icone:'🏢', label:'Postos SAC',            valor:fmtNum(Object.keys(POSTOS).length), sub:'Unidades atendidas' },
+    { key:'idade',     icone:'⏳', label:'Idade Média Geral',      valor:fmtAnos(g.idadeMedia),  sub:'Tempo médio de uso da frota' },
+    { key:'aquisicao', icone:'💰', label:'Soma Valor de Aquisição', valor:fmtBRL(g.somaAq),     sub:'Investimento histórico total' },
+    { key:'residual',  icone:'📉', label:'Soma Valor Residual',   valor:fmtBRL(g.somaRes),      sub:g.pctRes.toFixed(1).replace('.',',') + '% do valor de aquisição' }
+  ];
+
+  document.getElementById('kpisGlobais').innerHTML = kpis.map(k=>`
+    <div class="card ${state.sort===k.key?'ativo':''}" data-kpi="${k.key}" role="button" tabindex="0"
+         aria-label="Ordenar postos por ${k.label}">
+      <span class="kpi-hint">${k.icone}</span>
+      <div class="kpi-label">${k.label}</div>
+      <div class="kpi-valor">${k.valor}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>
+  `).join('');
+}
+
+/* -------- 4.2 Cards de postos -------- */
+function renderPostos(){
+  const info = SORT_INFO[state.sort] || SORT_INFO.aquisicao;
+
+  const lista = Object.keys(POSTOS).map(k=>({
+    k,
+    nome: POSTOS[k].nome,
+    ...agrega(D.filter(r=>r[0]===k))
+  }));
+
+  lista.sort((a,b)=> b[info.campo] - a[info.campo]);
+  const max = Math.max(...lista.map(l=>l[info.campo]), 1);
+
+  document.getElementById('tituloPostos').innerHTML =
+    `Postos SAC <span class="dica">${info.titulo} · clique em um posto para ver os detalhes</span>`;
+
+  document.getElementById('gridPostos').innerHTML = lista.map(p=>{
+    const pct = Math.max(3, (p[info.campo]/max)*100);
+    const ativo = state.posto === p.k;
+    return `
+      <article class="card posto ${ativo?'ativo':''}" data-posto="${p.k}" role="button" tabindex="0"
+               aria-label="Abrir detalhes de ${p.nome}">
+        <h3><span class="dot"></span>${p.nome}</h3>
+        <div class="grande">${fmtNum(p.n)} <small>equipamentos</small></div>
+
+        <div class="linha"><span>Idade média</span><b>${fmtAnos(p.idadeMedia)}</b></div>
+        <div class="linha"><span>Soma Valor de Aquisição</span><b>${fmtBRL(p.somaAq)}</b></div>
+        <div class="linha"><span>Soma Valor Residual</span><b>${fmtBRL(p.somaRes)}</b></div>
+
+        <div class="barra"><i style="width:${pct}%"></i></div>
+        <div class="ver-detalhe">${ativo ? '✓ Selecionado' : 'Ver detalhes ▸'}</div>
+      </article>
+    `;
+  }).join('');
+}
+
+/* -------- 4.3 Painel de detalhe -------- */
+function renderDetalhe(){
+  const alvo = document.getElementById('detalhe');
+
+  if(!state.posto){
+    alvo.innerHTML = `
+      <div class="aviso">
+        Selecione um <b>Posto SAC</b> acima para visualizar os indicadores detalhados
+        (idade média, soma do valor de aquisição e soma do valor residual).
+      </div>`;
+    return;
+  }
+
+  const regs = D.filter(r=>r[0]===state.posto);
+  const a = agrega(regs);
+  const nome = POSTOS[state.posto].nome;
+
+  /* --- gráfico: marcas por quantidade --- */
+  const marcas = agrupa(regs, r=>r[4]).sort((x,y)=>y.n-x.n).slice(0,8);
+  const maxMarca = Math.max(...marcas.map(m=>m.n),1);
+
+  /* --- gráfico: aquisições por ano --- */
+  const anos = agrupa(regs, r=>r[3].slice(0,4)).sort((x,y)=>x.label.localeCompare(y.label));
+  const maxAno = Math.max(...anos.map(m=>m.n),1);
+
+  /* --- gráfico: valor de aquisição por capacidade (BTUs) --- */
+  const btus = agrupa(regs, r=>r[5]+" BTUs").sort((x,y)=>y.aq-x.aq);
+  const maxBtu = Math.max(...btus.map(m=>m.aq),1);
+
+  /* --- tabela de equipamentos --- */
+  const tabela = [...regs].sort((x,y)=>y[1]-x[1]).map(r=>`
+    <tr>
+      <td>${r[4]}</td>
+      <td class="num">${fmtNum(r[5])}</td>
+      <td>${fmtData(r[3])}</td>
+      <td class="num">${idadeAnos(r[3])}</td>
+      <td class="num">${fmtBRL(r[1])}</td>
+      <td class="num">${fmtBRL(r[2])}</td>
+    </tr>
+  `).join('');
+
+  alvo.innerHTML = `
+    <div class="painel">
+      <div class="detalhe-head">
+        <div>
+          <span class="tag">Posto selecionado</span>
+          <h2>${nome}</h2>
+          <p>${fmtNum(a.n)} equipamentos · ${fmtBRL(a.somaAq)} em aquisições ·
+             ${a.pctRes.toFixed(1).replace('.',',')}% de valor residual</p>
+        </div>
+        <button class="btn-fechar" data-fechar>✕ Fechar</button>
+      </div>
+
+      <div class="detalhe-kpis">
+        <div class="mini destaque">
+          <div class="kpi-label">Idade Média do Posto</div>
+          <div class="kpi-valor">${fmtAnos(a.idadeMedia)}</div>
+        </div>
+        <div class="mini destaque">
+          <div class="kpi-label">Soma Valor de Aquisição</div>
+          <div class="kpi-valor">${fmtBRL(a.somaAq)}</div>
+        </div>
+        <div class="mini destaque">
+          <div class="kpi-label">Soma Valor Residual</div>
+          <div class="kpi-valor">${fmtBRL(a.somaRes)}</div>
+        </div>
+        <div class="mini">
+          <div class="kpi-label">Equipamentos</div>
+          <div class="kpi-valor">${fmtNum(a.n)}</div>
+        </div>
+        <div class="mini">
+          <div class="kpi-label">% Residual / Aquisição</div>
+          <div class="kpi-valor">${a.pctRes.toFixed(1).replace('.',',')}%</div>
+        </div>
+        <div class="mini">
+          <div class="kpi-label">Faixa de Idade</div>
+          <div class="kpi-valor">${a.idadeMin} – ${a.idadeMax} anos</div>
+        </div>
+      </div>
+
+      <div class="detalhe-grid">
+        <div class="painel-mini">
+          <h4>Equipamentos por marca</h4>
+          <div class="chart">
+            ${marcas.map(m=>`
+              <div class="chart-row">
+                <span class="chart-label">${m.label}</span>
+                <div class="chart-track"><div class="chart-fill" style="width:${Math.max(4,(m.n/maxMarca)*100)}%"></div></div>
+                <span class="chart-value">${m.n}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="painel-mini">
+          <h4>Aquisições por ano</h4>
+          <div class="chart">
+            ${anos.map(m=>`
+              <div class="chart-row">
+                <span class="chart-label">${m.label}</span>
+                <div class="chart-track"><div class="chart-fill" style="width:${Math.max(4,(m.n/maxAno)*100)}%"></div></div>
+                <span class="chart-value">${m.n}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+
+        <div class="painel-mini">
+          <h4>Valor de aquisição por capacidade</h4>
+          <div class="chart">
+            ${btus.map(m=>`
+              <div class="chart-row">
+                <span class="chart-label">${m.label}</span>
+                <div class="chart-track"><div class="chart-fill" style="width:${Math.max(4,(m.aq/maxBtu)*100)}%"></div></div>
+                <span class="chart-value">${fmtBRL(m.aq)}</span>
+              </div>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="painel-mini">
+        <h4>Equipamentos do posto (${fmtNum(a.n)} registros)</h4>
+        <div class="tabela-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Marca</th>
+                <th class="num">BTUs</th>
+                <th>Aquisição</th>
+                <th class="num">Idade (anos)</th>
+                <th class="num">Valor Aquisição</th>
+                <th class="num">Valor Residual</th>
+              </tr>
+            </thead>
+            <tbody>${tabela}</tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+/* ============================================================
+   5. INTERATIVIDADE
+   ============================================================ */
+document.addEventListener('click', e=>{
+
+  /* KPI global clicável */
+  const kpi = e.target.closest('[data-kpi]');
+  if(kpi){
+    state.sort = kpi.dataset.kpi;
+    render();
+    document.getElementById('gridPostos').scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+
+  /* Card de posto clicável */
+  const posto = e.target.closest('[data-posto]');
+  if(posto){
+    state.posto = posto.dataset.posto;
+    render();
+    document.getElementById('detalhe').scrollIntoView({behavior:'smooth', block:'start'});
+    return;
+  }
+
+  /* Fechar detalhe */
+  if(e.target.closest('[data-fechar]')){
+    state.posto = null;
+    render();
+    document.getElementById('gridPostos').scrollIntoView({behavior:'smooth', block:'start'});
+  }
+});
+
+/* Acessibilidade: Enter / Espaço */
+document.addEventListener('keydown', e=>{
+  if(e.key !== 'Enter' && e.key !== ' ') return;
+  const alvo = e.target.closest('[data-posto],[data-kpi]');
+  if(!alvo) return;
+  e.preventDefault();
+  alvo.click();
+});
+
+/* ============================================================
+   6. INICIALIZAÇÃO
+   ============================================================ */
+document.getElementById('dataAtual').textContent =
+  'Atualizado em ' + HOJE.toLocaleDateString('pt-BR');
+
+render();
+</script>
+</body>
+</html>
